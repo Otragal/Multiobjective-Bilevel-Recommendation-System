@@ -53,49 +53,73 @@
 
 import matplotlib.pyplot as plt
 import math
+from collections import defaultdict
 
+class Testes:
 
-peso = []
-qtd = []
-maxe = []
-intervalo = [900, 2100]
-inter = [math.floor(intervalo[0]/2),intervalo[0], intervalo[1], math.floor(intervalo[1]*(1+0.5)), intervalo[1]*2]
-zero = [0]*intervalo[1]*2
-for i in range(0,inter[4],1):
-    if i == 0:
-        peso.append(-1)
-    if i >= 0 and i <= inter[0]:
-        peso.append(-(inter[0]-i)/inter[0]) 
+    def plot_graph():
+        peso = []
+        qtd = []
+        maxe = []
+        intervalo = [900, 2100]
+        inter = [math.floor(intervalo[0]/2),intervalo[0], intervalo[1], math.floor(intervalo[1]*(1+0.5)), intervalo[1]*2]
+        zero = [0]*intervalo[1]*2
+        for i in range(0,inter[4],1):
+            if i == 0:
+                peso.append(-1)
+            if i >= 0 and i <= inter[0]:
+                peso.append(-(inter[0]-i)/inter[0]) 
 
-    if i > inter[0] and i < inter[1]:
-        peso.append((i-inter[0])/(inter[1]-inter[0]))
+            if i > inter[0] and i < inter[1]:
+                peso.append((i-inter[0])/(inter[1]-inter[0]))
 
-    if i >= inter[1] and i <= inter[2]:
-        peso.append(1)
+            if i >= inter[1] and i <= inter[2]:
+                peso.append(1)
 
-    if i > inter[2] and i <= inter[3]:
-        peso.append((inter[3]-i)/(inter[3]-inter[2]))
+            if i > inter[2] and i <= inter[3]:
+                peso.append((inter[3]-i)/(inter[3]-inter[2]))
+
+            if i > inter[3] and i < inter[4]:
+                peso.append(-(i-inter[3])/(inter[4]-inter[3]))
+            if i >= inter[4]:
+                peso.append(-1)
+
+        plt.plot(peso)
+        plt.plot(zero,'r--')
+        #plt.plot(qtd,peso)
+        #plt.plot(qtd,zero, 'black')
+        #plt.plot(qtd,maxe,'r--')
+        plt.plot(900,1,'ro')
+        plt.plot(2100,1,'ro')
+        plt.plot(inter[0],0,'ro--')
+        plt.plot(inter[3],0, 'ro--')
+        plt.annotate('{}g'.format(inter[0]), xy=(inter[0],0), xytext=(inter[0]-300,0.05))
+        plt.annotate('{}g'.format(inter[3]),xy=(inter[3],0),xytext=(inter[3]+100,0.05))
+        plt.annotate('900g', xy=(900,1), xytext=(450,0.95))
+        plt.annotate('2100g',xy=(2100,1),xytext=(2200,0.95))
+        #plt.annotate('Nota 0.9',xy=(1000,0.9),xytext=(1000,0.95))
+        plt.title("Formula do Peso")
+        plt.xlabel('Peso (gramas)')
+        plt.ylabel(('Peso(x)'))
+        plt.show()
+
+    def find_duplication(codigo):
+        duplicada = []
+        d = defaultdict(list)
+        for i,item in enumerate(codigo):
+            d[item].append(i)
+
+        for k,v in d.items():
+            if len(v)>1:
+                duplicada.extend(v)
+
+        dupla = [v for k,v in d.items() if len(v)>1]
         
-    if i > inter[3] and i < inter[4]:
-        peso.append(-(i-inter[3])/(inter[4]-inter[3]))
-    if i >= inter[4]:
-        peso.append(-1)
-    
-plt.plot(peso)
-plt.plot(zero,'r--')
-#plt.plot(qtd,peso)
-#plt.plot(qtd,zero, 'black')
-#plt.plot(qtd,maxe,'r--')
-plt.plot(900,1,'ro')
-plt.plot(2100,1,'ro')
-plt.plot(inter[0],0,'ro--')
-plt.plot(inter[3],0, 'ro--')
-plt.annotate('{}g'.format(inter[0]), xy=(inter[0],0), xytext=(inter[0]-300,0.05))
-plt.annotate('{}g'.format(inter[3]),xy=(inter[3],0),xytext=(inter[3]+100,0.05))
-plt.annotate('900g', xy=(900,1), xytext=(450,0.95))
-plt.annotate('2100g',xy=(2100,1),xytext=(2200,0.95))
-#plt.annotate('Nota 0.9',xy=(1000,0.9),xytext=(1000,0.95))
-plt.title("Formula do Peso")
-plt.xlabel('Peso (gramas)')
-plt.ylabel(('Peso(x)'))
-plt.show()
+        return duplicada, dupla
+
+ca = ['cereais', 'carnes', 'carnes', 'leguminosas', 'leguminosas', 'verduras', 'cereais','carnes','ovos', 'leguminosas','verduras','verduras']
+duplicada, duplas = Testes.find_duplication(ca)
+conjunto = set(ca)
+print(duplicada)
+print(duplas)
+print(conjunto)

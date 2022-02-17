@@ -31,7 +31,15 @@ class GA():
         self.macro = macro
         self.restricaoMIN = FormatConverter.makeDictNutrition(self.macro.nutRestricao, self.macro.restricaoMIN)
         self.restricaoMAX = FormatConverter.makeDictNutrition(self.macro.nutRestricao, self.macro.restricaoMAX)
-        
+        if log:
+            print('GA::__init__\t Restrições MIN e Max')
+            print(self.macro.nutRestricao)
+            print(self.restricaoMIN)
+            print(self.restricaoMAX)
+            print('Quantidade de Alimentos: ', len(macro.categoria))
+            print(macro.categoria)
+            input("Press Enter to continue...")
+            print()
         
         self.log = log
         self.model_name = 'modelo_'+str(macro.usuario.pessoa)
@@ -49,12 +57,11 @@ class GA():
 
     def iniciar(self):
         # Define os fitness dos individuos
-        
-        print('GA::iniciar\t Definindo o Fitness dos Indivíduos...')
+        print('GA::iniciar\t Construindo a Primeira População...')
         self.povo = FitnessGurobi.setFitnessPovo(self.macro, self.model, self.model_name, self.povo)
         print("GA::iniciar\t Inicializando o Povo na EPOCA: %s" % (self.epocas))
         #self.povo.getIndividuo(1).printIndividuoAll()
-        input("Press Enter to continue...")                                                                        
+        input("Precissione para Iniciar a Busca...")                                                                        
         while self.epocas < self.maxEpoca:
             self.epocas += 1
             print("\n\t Evoluindo Povo para EPOCA: %s" %(self.epocas))
@@ -87,5 +94,7 @@ class GA():
         print('\n')
 
         self.resultado.plotFronts(self.macro.porcentagem)
-        
-
+        self.resultado.plotFrontsIntakes(self.macro, self.macro.porcentagem)
+        self.resultado.plotFrontFoods(self.macro)
+        self.resultado.boxSplotMacronutrientes(self.macro)
+        self.resultado.stackBarEnergyMacro(self.macro)

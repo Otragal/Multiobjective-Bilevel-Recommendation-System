@@ -3,6 +3,7 @@ from dataclasses import dataclass
 @dataclass
 class comida:
     alimento: list
+    codigo: list
     cromoxomo: list
     categoria: list
     indice: list
@@ -14,7 +15,8 @@ class comida:
         self.indice = i
         self.tamanho = len(a)
 
-    def setCromoxomo(self, c:list):
+    def setCromoxomo(self, c:list, co:list):
+        self.codigo = co
         self.cromoxomo = c
 
 @dataclass
@@ -40,6 +42,17 @@ class desempenho:
         self.peso_refeicao = p
 
 @dataclass
+class macronutriente:
+    nomes_macro = list
+    percentual_energia = list
+    tamanho = int
+
+    def __init__(self, nm:list, pe:list):
+        self.nomes_macro = nm
+        self.percentual_energia = pe
+        self.tamanho = len(self.nomes_macro)
+
+@dataclass
 class usuario:
     pessoa: int
     idade: int
@@ -51,10 +64,12 @@ class usuario:
 @dataclass
 class extras:
     repetir_alimento: bool
+    repetir_alimento_ref: bool
     juntar_almoço_jantar: bool
-    fixar_alimentos: bool
+    fixar_alimento: bool
 
-    def __init__(self, r:bool, j:bool, f:bool):
+    def __init__(self, r:bool, rf:bool, j:bool, f:bool):
         self.repetir_alimento = r
+        self.repetir_alimento_ref = rf
         self.juntar_almoço_jantar = j
-        self.fixar_alimentos = f
+        self.fixar_alimento = f

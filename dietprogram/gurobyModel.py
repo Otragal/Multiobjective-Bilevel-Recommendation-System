@@ -51,6 +51,7 @@ class GurobiModel:
         constrains = macro.nutRestricao
         tam_grupo = macro.desempenho.tam_categoria
         energia_distri = macro.desempenho.energia_refeicao
+        macronutriente = macro.macronutriente
 
         #variaveis de conta
         r = 0
@@ -68,8 +69,10 @@ class GurobiModel:
         model.setObjective(z, GRB.MAXIMIZE)
         # Definir as restrições
 
+        # Restrições de Objetivos
+        
         # Restrições de Energia Minima
-        model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables) >= 2000),'Energia')
+        model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables) >= 2400),'Energia')
         # Restrição de Custo
         model.addConstr((gp.quicksum(valuesConstrains[v,'Preco']*quantidade[v] for v in variables) <= 500),'Preco')
         # Restrições
@@ -82,11 +85,19 @@ class GurobiModel:
         #    tam = tam_grupo(key)
 
         while (r < len(tam_grupo)):
-            model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[index:(tam_grupo[r]+index)]) >= z*(energia_distri[r][0])),'_Min')
-            model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[index:(tam_grupo[r]+index)]) <= z*(energia_distri[r][1])),'_Max')
+            model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[index:(tam_grupo[r]+index)]) >= z*(energia_distri[r][0])),'_Ener_Min')
+            model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[index:(tam_grupo[r]+index)]) <= z*(energia_distri[r][1])),'_Ener_Max')
             index += tam_grupo[r]
             r += 1
+
+
+        while ( r < macronutriente.tamanho):
+            model.addConstr((gp.quicksum(valuesConstrains[ v, macronutriente.nomes_macro[i] ]*quantidade[v] for v in variables) >= z*(macronutriente[i][0])), '_MacroNutre_Min')
+            model.addConstr((gp.quicksum(valuesConstrains[ v, macronutriente.nomes_macro[i] ]*quantidade[v] for v in variables) <= z*(macronutriente[i][1])), '_MacroNutre_Min')
+            r += 1
         
+        
+
         # Solve Model
         model.optimize()
         model.write('model_optimize.mps') # Salva
@@ -141,7 +152,7 @@ class GurobiModel:
             # Restrições de Energia Minima
             model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables) >= 2000),'Energia')
             # Restrição de Custo
-            model.addConstr((gp.quicksum(valuesConstrains[v,'Preco']*quantidade[v] for v in variables) <= 500),'Preco')
+            model.addConstr((gp.quicksum(valuesConstrains[v,'Preco']*quantidade[v] for v in variables) <= 500),'Proteina')
             # Restrições
             model.addConstrs((gp.quicksum(valuesConstrains[v, c]*quantidade[v] for v in variables) >= minConstrains[c] for c in constrains),'MinCons')
             model.addConstrs((gp.quicksum(valuesConstrains[v, c]*quantidade[v] for v in variables) <= maxConstrains[c] for c in constrains),'MaxCons')
