@@ -29,6 +29,7 @@ Class FitnessGurobi()
 
 class FitnessGurobi():
 
+    # Old method
     @staticmethod
     def setFitnessPovo(macro, model, nome_model, povo):
         for individuo in povo.individuos:
@@ -41,7 +42,7 @@ class FitnessGurobi():
             minCons = FormatConverter.makeDictNutrition(macro.nutRestricao,macro.restricaoMIN)
             maxCons = FormatConverter.makeDictNutrition(macro.nutRestricao, macro.restricaoMAX)
             # Chama o Gurobi para fazer a Programação Linear
-            model, resultado = GurobiModel.solveModel(model,macro.nutRestricao, name, energy, varNuts, maxCons,minCons)
+            model, resultado = GurobiModel.solveCustomModel(model,macro, name, energy, varNuts, maxCons,minCons)
             #individuo.setFitness(FitnessGurobi.fitness(resultado,energy,price, macro.porcentagem))
             individuo.setFitness(FitnessGurobi.fitnessCustom(resultado, macro, energy, price))
         return povo

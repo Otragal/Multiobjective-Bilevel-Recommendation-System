@@ -2,13 +2,31 @@ from fitnessGurobi import FitnessGurobi
 from gurobyModel import GurobiModel
 from formatConverter import FormatConverter
 from individuo import Individuo
-
+from collections import defaultdict
 from povo import Povo
 
+
+import math
 import pandas as pd
 import numpy as np
 import random
 import csv 
+
+def find_duplication(codigo, log=None):
+        duplicada = []
+        d = defaultdict(list)
+        for i,item in enumerate(codigo):
+            d[item].append(i)
+
+        for k,v in d.items():
+            if len(v)>1:
+                duplicada.extend(v)
+
+        dupla = [v for k,v in d.items() if len(v)>1]
+        if log:
+            print('Genetic::find_duplication\t Existe duplicação')
+            print(duplicada)
+        return duplicada, dupla
 
 """
 Class Genetic()
@@ -50,7 +68,7 @@ class Genetic():
 
     crossoverUniforme = 0.5
     mutationValue = 0.4
-    tamanhoTorneio = 2
+    tamanhoTorneio = 5
     chanceTorneio = 0.9
 
     @staticmethod
@@ -137,25 +155,79 @@ class Genetic():
     
     @staticmethod
     def mutation(individuo, macro, log=None):
+        
+        duplicada, dupla = find_duplication(individuo.codigo, log)
+        duplicada_ref = []
+        
+        # filtro repetir_alimento
+        if not macro.extra.repetir_alimento and len(duplicada)>0:
+            # filtro fixar_alimento
+            if macro.extra.fixar_alimento:
+                for i in duplicada:
+                    if i in macro.filtro.indice:
+                        duplicada.pop(i)
+            
+        else:
+            # filtro repetir alimento somente nas refeições
+            if not macro.extra.repetir_alimento_ref and len(dupla)>0:
+                if len(dupla[0]>0):
+                    # filtro fixar alimento
+                    if macro.extras.fixar_alimento:
+                        for dp in dupla:
+                            for i in range(len(dp)):
+                                if dp[i] in macro.filtro.indice:
+                                    dp.pop(i)
+            
+                    point = 0
+                    for ref in macro.desempenho.tam_categoria:
+                        for dp in dupla:
+                            a = set(dp) # 1:{1,2,7}, 2:{3,5,6,8}
+                            b = set(range(point,(point+ref))) # 1:{1,2,3}, 2:{4,5,6,7}
+                            c = list(a & b) # 1:{1,2}, 2:{5,6}
+                            if len(c) > 1:
+                                duplicada_ref.extend(list(c)) # 1:[1,2], 2:[1,2,5,6]
+        
         for i in range(individuo.size()):
-            if macro.extra.fixar_alimentos:
-                if i not in macro.filtro.indice:
+            if not macro.extra.repetir_alimento and i in duplicada:
+                individuo.setGene(i, macro.taco.selectRandomRestrictFood(macro.categoria[i], individuo.codigo[i], macro.nutricao))
+            else:
+                if not macro.extra.repetir_alimento and i in duplicada_ref:
+                    individuo.setGene(i, macro.taco.selectRandomRestrictFood(macro.categoria[i], individuo.codigo[i], macro.nutricao))
+                else:
                     if random.random() < Genetic.mutationValue:
                         individuo.setGene(i, macro.taco.selectRandomFood(macro.categoria[i], macro.nutricao))
-                        if log:
-                            print("Genetic::mutation\t mutação realizada com filtro fixar_alimentos em ",macro.categoria[i])
-            else:
-                if random.random() < Genetic.mutationValue:
-                        individuo.setGene(i, macro.taco.selectRandomFood(macro.categoria[i], macro.nutricao))
-                        if log:
-                            print("Genetic::mutation\t mutação realizada em: ",macro.categoria[i])
-        
+                    
+
+
+        #for i in range(individuo.size()):
+        #    if macro.extra.fixar_alimento:
+        #        if i not in macro.filtro.indice:
+        #            if random.random() < Genetic.mutationValue:
+        #                individuo.setGene(i, macro.taco.selectRandomFood(macro.categoria[i], macro.nutricao))
+        #                if log:
+        #
+        #                     print("Genetic::mutation\t mutação realizada com filtro fixar_alimentos em ",macro.categoria[i])
+        #if macro.extra.fixar_alimento:
+        #    return Genetic.force_fix_alimento(individuo, macro, log=None)
+        #else:
+
+        #for i in range(individuo.size()):
+        #    if random.random() < Genetic.mutationValue:
+        #            individuo.setGene(i, macro.taco.selectRandomFood(macro.categoria[i], macro.nutricao))
+        #            if log:
+        #                print("Genetic::mutation\t mutação realizada em: ",macro.categoria[i])
+        #    individuo = Genetic.uniform(individuo, macro, log=None)
+
+        #if macro.extra.repetir_alimento_ref:
+        #    return Genetic.force_non_duplication_filtro(individuo,macro, log=False)
         if log:
             print("Genetic::mutation\t Individuo Mutato:")
             individuo.printIndividuo()
         
         return individuo
+    
         
+
 
     @staticmethod
     def torneio(povo, log=None):

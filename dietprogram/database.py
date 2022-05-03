@@ -6,10 +6,12 @@ class TacoDB():
         try:
             print("TacoDB::__init__\t Iniciando Banco de Dados")
             # PATH para o Banco de Dados SQLite
-            self.path ='/home/ancalangon/Workspace/sqliteDatabases/'
+            self.path ='/home/otragal/Workspace/sqliteDatabases/'
             self.database = 'taco4dataset.db'
             self.connect = sqlite3.connect('{url}{db}'.format(url=self.path,db=self.database))
+
             self.cur = self.connect.cursor()
+
             print('Conexão criada em '+self.database)
         except sqlite3.Error as error:
             print("Falha em tentar ler os dados no sqlite table ", error)
@@ -49,16 +51,24 @@ class TacoDB():
         return select[0]
 
     def selectRandomFood(self, tabela, query):
-        sqlite_select_query = '''SELECT Nome, Id, ''' +''', '''.join(query) + ''' FROM {}'''.format(tabela)
+        sqlite_select_query = '''SELECT Nome, Id, ''' +''', '''.join(query) + ''' FROM {} ORDER BY RANDOM()'''.format(tabela)
         self.cur.execute(sqlite_select_query)
         select = self.cur.fetchall()
         print('TacoDB::selectRandomFood\t Select FROM {} efetuado'.format(tabela))
         return select[0]
 
+    def selectRandomRestrictFood(self, tabela, id, query):
+        sqlite_select_query = '''SELECT Nome, Id, ''' + ''', '''.join(query) + ''' FROM {} WHERE Id NOT IN ({}) ORDER BY RANDOM()'''.format(tabela,id)
+        self.cur.execute(sqlite_select_query)
+        select = self.cur.fetchall()
+        print('TacoDB::selectRandomRestrictFood\t Select FROM {} efetuado'.format(tabela))
+        return select[0]
+
     def quit(self):
         print('TacoDB:quit\t Desconectando com {}'.format(self.database))
-        self.connect.close()
+        self.cur.close()
         print('SQLite3 Desconectado')
+        return 0
          
 
 # sqlite_select_query, retorna uma lista de tuplas

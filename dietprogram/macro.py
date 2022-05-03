@@ -25,14 +25,18 @@ Class Macro:
 """
 
 class Macro:
-    def __init__(self, usu, categorias, des, fil, ex, nutricao, porcentagem, nutRestricao=None):
+    def __init__(self, usu, obj, qtd_obj, categorias, des, macronutriente, fil, ex, nutricao, porcentagem, nutRestricao=None):
         self.taco = database.TacoDB()
 
         self.usuario = usu
         self.categoria = categorias
 
         self.desempenho = des
+        self.macronutriente = macronutriente
         self.filtro = fil
+        
+        self.objetivos = obj
+        self.qtd_objetivos = qtd_obj
 
         self.extra = ex    
         #self.tam_categoria = tam_categoria
@@ -55,10 +59,11 @@ class Macro:
             self.rMIN = [x + "MIN" for x in nutRestricao]
             self.rMAX = [x + "MAX" for x in nutRestricao]
 
-        if self.extra.fixar_alimentos:
+        if self.extra.fixar_alimento:
+            print('Macro::__init__\t Filtro "Fixar Alimentos" ativado')
             self.construirCrossomoFixo()
         else:
-            print('Macro::__init__\t Sem fixar alimentos')
+            print('Macro::__init__\t Filtro "Fixar Alimentos" desativado')
 
     # MÉTODO ANTIGO
     #def definirGenes(self):
@@ -86,9 +91,12 @@ class Macro:
     # criação de filtros de comidas fixas no cromosso
     def construirCrossomoFixo(self):
         cromo = []
+        codigo = []
         for index in range(self.filtro.tamanho):
-            cromo.append(self.taco.selectOneFood(self.filtro.alimento[index], self.filtro.categoria[index], self.nutricao))
-        self.filtro.setCromoxomo(cromo)
+            resultado = self.taco.selectOneFood(self.filtro.alimento[index], self.filtro.categoria[index], self.nutricao)
+            codigo.append(resultado[1])
+            cromo.append(resultado)
+        self.filtro.setCromoxomo(cromo, codigo)
         print(self.filtro.cromoxomo)
         
         

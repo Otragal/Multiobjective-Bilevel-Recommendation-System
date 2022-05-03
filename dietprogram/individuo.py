@@ -37,7 +37,7 @@ class Individuo():
         self.rank = None
         if genes is not None:
             self.generateGene(genes)
-        if filtro is not None:
+        if filtro is not None and filtro is True:
             self.fixComida(filtro)
 
     def generateGene(self, genes):
@@ -83,9 +83,11 @@ class Individuo():
         return self.cromossomo[index]
 
     def setGene(self, index, gene):
+        self.codigo[index] = gene[1]
         self.cromossomo[index] = gene
 
     def applyGene(self,gene):
+        self.codigo.append(gene[1])
         self.cromossomo.append(gene)
 
     def getCategoria(self, c):

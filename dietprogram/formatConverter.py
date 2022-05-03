@@ -11,8 +11,10 @@ class FormatConverter:
         preco = []
         for key, c in enumerate(cromossomo):
             varNames.append(unicodedata.normalize('NFD',c[0].replace(" ",""))+str(key))
-            e = c[2] # energia
-            p = c[3] # preço
+            # c[0] = Nome
+            # c[1] = Id
+            e = c[2] # energia (objetivo 1)
+            p = c[3] # preço (objetivo 2)
             if porcentagem is not None and porcentagem != 0:
                 e = e/porcentagem
                 p = p/porcentagem # Define que o Preço é por 100g
