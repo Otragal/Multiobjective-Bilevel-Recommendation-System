@@ -1,159 +1,100 @@
-from macro import Macro
-from individuo import Individuo
-
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
 import numpy as np
 import pandas as pd
 import math
-
 import csv
 
-"""
-Class Povo:
+mg = ['Calcio', 'Magnesio','Potassio', 'Zinco', 'Riboflavina',
+    'Ferro', 'Sodio','Colesterol', 'Manganes', 'Fosforo',
+    'Cobre', 'VitaminaC', 'Tiamina', 'Niacina']
 
-    Estrutura do Povo do NSGA-II
+mcg = ['VitaminaA']
 
-    __init__()
-        Método construtor da classe;
+class Results:
 
-    criarGenes()
-        Método de criar os genes dos Indivíduos;
-        Da lista de genes obtido pelo Macro, os indivíduos recebem os alimentos aleatoriamente para cada categoria;
-
-    criarPovo()
-        Método de criar Povo do NSGA-II;
-        Método mais robusto que criarGenes();
-
-    size()
-        Método que retornar o tamanho da população;
-
-    extend()
-        Método de extend do Povo
-        Extende a lista de indivíduos;
-
-    append()
-        Método de append do Povo
-        Adiciona mais indivíduos na lista de indivíduos;
-
-    melhorIndividuo()
-        Pega os melhores indivíduos, ou seja, pega os individuos da fronteira de Pareto;
-
-    getIndividuo()
-        Método que pega um indíviduo da lista de indivíduos;
-
-"""
-
-class Povo():
-    def __init__(self, macro=None, log=None):
-        self.individuos = []
-        self.fronts = [[]]
-        self.log = log
-        self.extras = None
-        self.filtro = None
-        if macro is not None:
-            self.genes = macro.getGenes()
-            self.extras = macro.extra
-            self.filtro = macro.filtro
-    
-    def criarGenes(self, categorias):
-        cromossomo = []
-        # lista de listas das categorias
-        for c in categorias:
-            cromossomo.append(self.taco.selectQuery(c))
-        return cromossomo
-
-    def criarPovo(self, tamanho):
-        print("\nPovo::criarPovo\t Criando Povo ")
-        for i in range(tamanho):
-            if self.extras is not None and self.extras.fixar_alimento:
-                pessoa = Individuo(self.genes, self.filtro)
-            else:
-                pessoa = Individuo(self.genes)
-            if self.log:
-                print('[',i+1, '] ', end='')
-                pessoa.printIndividuo()
-            #pessoa = Individuo(random.choice(self.cereal[:tamanho]),random.choice(self.leite[:tamanho]), random.choice(self.fruta[:tamanho]))
-            self.individuos.append(pessoa)
-
-    def size(self):
-        return len(self.individuos)
-    
-    def extend(self, novos_individuos):
-        self.individuos.extend(novos_individuos)
-
-    def append(self, novos_individuos):
-        self.individuos.append(novos_individuos)
-
-    def getFront(self):
-        return self.fronts[0]
-
-    def getIndividuo(self, index):
-        return self.individuos[index]
-
-    def setLog(self, log):
-        self.log = log 
-
-
-    def printPovo(self):
-        for i in self.individuos:
-            i.printIndividuo()
-
-    def saveFronts(self, porcentagem, epoca):
-        if porcentagem is not None and porcentagem != 0:
-            percent = ', alimento com {}g'.format(porcentagem)
-        desempenho  = []
-        dfront = []
-        custo = []
-        cfront = []
-        for i in self.individuos:
-            fitness = i.getFitness()
-            desempenho.append(fitness[0])
-            custo.append(fitness[1])
-        for i in self.fronts[0]:
-            fitness = i.getFitness()
-            dfront.append(fitness[0])
-            cfront.append(fitness[1])
-        plt.plot(desempenho, custo, 'bo', dfront, cfront, 'ro')
-        #plt.title("NSGA-II with Gurobi - Diet Problem - Pareto-Optimal"+percent)
-        #plt.xlabel('Concentration (Smaller is Better)')
-        #plt.ylabel(('Cost per Unit (Lower is Better)'))
-        plt.title("NSGA-II com Gurobi - Problema da Dieta - Pareto-Optimal"+percent)
-        plt.xlabel('Concentração (Menor é Melhor)')
-        plt.ylabel(('Custo Unitário (Menor é Melhor)'))
-        if epoca >= 0:
-            plt.savefig('/home/otragal/Workspace/Multiobjective-Bilevel-Recommendation-System/dietprogram/pics/teste10Epoca{}.png'.format(epoca))
-        else:
-            print('Error Epoca < 0')
-        plt.close()
-
-    def createFrontsCSV(self, macro, fronteira):
+    def createFrontsCSV(self, povo, macro):
         header = []
-        header.append('Indivíduo')
+        header.extend(["Indivíduo"])
         for cat in macro.categoria:
-            header.append(cat)
-        header.append('Concentração')
-        header.append('Custo')
-        header.append('Energia Total')
+            header.extend([cat])
+        header.extend(["Concentração"])
+        header.extend(["Custo"])
+        header.extend(["Energia Total"])
+        print(header)
+        with open('resultados.csv', 'w') as file:
+            writer = csv.writer(file)
+            writer.writerow(header)
+            # Write Soluções Dominadas
+            for key,i in enumerate(povo.individuos):
+                individuo = []
+                individuo.append(key)
+                for gene in i.cromossomo:
+                    individuo.append(gene[0])
+                
+                individuo.extend(i.fitness)
+                #print(i.atributos[1])
+                #print(sum(i.atributos[1]))
+                sumEner = np.dot(i.atributos[0],i.atributos[1])
+                individuo.append(sumEner)
+                writer.writerow(individuo)
+            # Write Soluções Não Dominadas
+            for key,i in enumerate(povo.fronts[0]):
+                individuo = []
+                individuo.append(key)
+                for gene in i.cromossomo:
+                    individuo.append(gene)
+                individuo.extend(i.fitness)
+                sumEner = np.dot(i.atributos[0],i.atributos[1])
+                individuo.append(sumEner)
+                writer.writerow(individuo)
         
-        csvfile = []
-        csvfile.append(header)
+        print('Finished 1')
             
 
+    def saveFronts(self, povo, macro, epoca):
+            
+            if macro.porcentagem is not None and macro.porcentagem != 0:
+                percent = ', alimento com {}g'.format(macro.porcentagem)
+            desempenho  = []
+            dfront = []
+            custo = []
+            cfront = []
+            for i in povo.individuos:
+                fitness = i.getFitness()
+                desempenho.append(fitness[0])
+                custo.append(fitness[1])
+            for i in povo.fronts[0]:
+                fitness = i.getFitness()
+                dfront.append(fitness[0])
+                cfront.append(fitness[1])
+            plt.plot(desempenho, custo, 'bo', dfront, cfront, 'ro')
+            #plt.title("NSGA-II with Gurobi - Diet Problem - Pareto-Optimal"+percent)
+            #plt.xlabel('Concentration (Smaller is Better)')
+            #plt.ylabel(('Cost per Unit (Lower is Better)'))
+            plt.title("NSGA-II com Gurobi - Problema da Dieta - Pareto-Optimal"+percent)
+            plt.xlabel('Concentração (Menor é Melhor)')
+            plt.ylabel(('Custo Unitário (Menor é Melhor)'))
+            if epoca >= 0:
+                plt.savefig('/home/otragal/Workspace/Multiobjective-Bilevel-Recommendation-System/dietprogram/pics/teste10Epoca{}.png'.format(epoca))
+            else:
+                print('Error Epoca < 0')
+            plt.close()
 
-    def plotFronts(self, porcentagem):
-        if porcentagem is not None and porcentagem != 0:
-            percent = ', alimento com {}g'.format(porcentagem)
+    def plotFronts(self, povo, macro):
+        
+        if macro.porcentagem is not None and macro.porcentagem != 0:
+            percent = ', alimento com {}g'.format(macro.porcentagem)
         desempenho  = []
         dfront = []
         custo = []
         cfront = []
-        for i in self.individuos:
+        for i in povo.individuos:
             fitness = i.getFitness()
             desempenho.append(fitness[0])
             custo.append(fitness[1])
-        for i in self.fronts[0]:
+        for i in povo.fronts[0]:
             fitness = i.getFitness()
             dfront.append(fitness[0])
             cfront.append(fitness[1])
@@ -163,9 +104,9 @@ class Povo():
         plt.ylabel(('Custo Unitário (Menor é Melhor)'))
         plt.show()
 
-    def plotFrontsIntakes(self, macro, porcentagem):
-        if porcentagem is not None and porcentagem != 0:
-            percent = 'Non-Dominatted Candidate Solutions Nutritions, food with '.format(porcentagem)
+    def plotFrontsIntakes(self, povo, macro):
+        if macro.porcentagem is not None and macro.porcentagem != 0:
+            percent = 'Non-Dominatted Candidate Solutions Nutritions, food with '.format(macro.porcentagem)
         else:
             percent = 'Non-Dominatted Candidate Solutions Nutritions'
         width = 0.35
@@ -174,7 +115,7 @@ class Povo():
 
         plot_each_food_intakes = []
 
-        for ind in self.fronts[0]:
+        for ind in povo.fronts[0]:
             gene_intake = []
             for index, gene in enumerate(ind.cromossomo):
                 intakes = []
@@ -187,8 +128,8 @@ class Povo():
                     
                 gene_intake.append(intakes)
             sum_intakes = [sum(i) for i in zip(*gene_intake)]
-            if porcentagem is not None and porcentagem != 0:
-                sum_intakes = [i/porcentagem for i in sum_intakes]
+            if macro.porcentagem is not None and macro.porcentagem != 0:
+                sum_intakes = [i/macro.porcentagem for i in sum_intakes]
             for i in range(len(macro.nutRestricao)):
                 if macro.nutRestricao[i] in mg:
                     sum_intakes[i] = sum_intakes[i]/1000
@@ -211,7 +152,7 @@ class Povo():
         plt.ylabel('Amount of Food Nutrition (g)')
         plt.show()
         
-    def plotFrontFoods(self, macro):
+    def plotFrontFoods(self, povo, macro):
         if macro.porcentagem is not None and macro.porcentagem != 0:
             percent = 'Distribution of Food Category for each Non-Dominated Candidate Solutions, food with'.format(macro.porcentagem)
         else:
@@ -221,7 +162,7 @@ class Povo():
         legenda = "Solution "
         plot_each_food = []
 
-        duplicada, duplas = find_duplication(macro.categoria)
+        duplicada, duplas = Results().find_duplication(macro.categoria)
         list_index_cat = [i for i in range(len(macro.categoria))]
         list_index_cat = set(list_index_cat)
         duplicada = set(duplicada)
@@ -235,7 +176,7 @@ class Povo():
         for mono in mono_food:
             lista_cat.append(macro.categoria[mono])
         
-        for ind in self.fronts[0]:
+        for ind in povo.fronts[0]:
             gene_food = []
         
             # making legenda
@@ -267,7 +208,7 @@ class Povo():
         plt.show()
 
 
-    def boxSplotMacronutrientes(self, macro):
+    def boxSplotMacronutrientes(self, povo, macro):
         if macro.porcentagem is not None and macro.porcentagem != 0:
             percent = 'Distribution of Macronutrients in Non-Dominated Candidate Solutions, food with {}g'.format(macro.porcentagem)
         else:
@@ -277,7 +218,7 @@ class Povo():
 
         box_macro = []
 
-        for ind in self.fronts[0]:
+        for ind in povo.fronts[0]:
             gene_intake = []
             for index, gene in enumerate(ind.cromossomo):
                 intakes = []
@@ -327,7 +268,7 @@ class Povo():
         
         plt.show()
         
-    def stackBarEnergyMacro(self, macro):
+    def stackBarEnergyMacro(self, povo, macro):
         if macro.porcentagem is not None and macro.porcentagem != 0:
             percent = 'Percentage of Macronutrients in Non-Dominated Candidate Solutions, food with {}g'.format(macro.porcentagem)
         else:
@@ -338,7 +279,7 @@ class Povo():
 
         box_macro = []
         box_energy = []
-        for ind in self.fronts[0]:
+        for ind in povo.fronts[0]:
             VET = float(np.dot(ind.atributos[0],ind.atributos[1]))
             gene_intake = []
             for index, gene in enumerate(ind.cromossomo):
@@ -389,9 +330,18 @@ class Povo():
 
 
     @staticmethod
-    def recursive_stack(lista, index):
-        index = index - 1
-        if index <= 0:
-            return lista[0]
-        else:
-            return lista[index]+Povo.recursive_stack(lista, index)
+    def find_duplication(codigo, log=None):
+        duplicada = []
+        d = defaultdict(list)
+        for i,item in enumerate(codigo):
+            d[item].append(i)
+
+        for k,v in d.items():
+            if len(v)>1:
+                duplicada.extend(v)
+
+        dupla = [v for k,v in d.items() if len(v)>1]
+        if log:
+            print('Genetic::find_duplication\t Existe duplicação')
+            print(duplicada)
+        return duplicada, dupla

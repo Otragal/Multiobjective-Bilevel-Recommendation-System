@@ -68,7 +68,7 @@ class Genetic():
 
     crossoverUniforme = 0.5
     mutationValue = 0.4
-    tamanhoTorneio = 2
+    tamanhoTorneio = 5
     chanceTorneio = 0.9
 
     @staticmethod

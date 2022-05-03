@@ -3,6 +3,8 @@ from gurobyModel import GurobiModel
 from fitnessGurobi import FitnessGurobi
 from povo import Povo
 from genetic import Genetic
+from results import Results
+
 from time import time
 
 """
@@ -67,9 +69,9 @@ class GA():
             print("\n\t Evoluindo Povo para EPOCA: %s" %(self.epocas))
             self.povo, self.resultado = Genetic.evoluir_NSGA(self.povo, self.macro, self.maxPovo, self.model, self.model_name, self.log)
             #self.povo.printPovo()
-            input("Press Enter to continue...")
+            #input("Press Enter to continue...")
             print()
-
+            #self.resultado.saveFronts(self.macro.porcentagem, self.epocas)
         self.resultados()
        # melhorIndividuo = self.resultado.melhorIndividuo()
 
@@ -82,19 +84,25 @@ class GA():
         #self.resultado.plotFronts()
 
     def resultados(self):
-        melhorIndividuo = self.resultado.melhorIndividuo()
+        fronteira = self.resultado.getFront()
         print("GA::resultados\t Apresentando os resultados")
         print("CATEGORIAS\t", end='')
         for cat in self.macro.categoria:
             print(cat, '\t', end='')
         print('OBJETIVOS\n')
-        for key, value in enumerate(melhorIndividuo):
+        for key, value in enumerate(fronteira):
             print("OPÇÃO ",key,"\t",end='')
             value.printIndividuo()
         print('\n')
 
-        self.resultado.plotFronts(self.macro.porcentagem)
-        self.resultado.plotFrontsIntakes(self.macro, self.macro.porcentagem)
-        self.resultado.plotFrontFoods(self.macro)
-        self.resultado.boxSplotMacronutrientes(self.macro)
-        self.resultado.stackBarEnergyMacro(self.macro)
+        Results().createFrontsCSV(self.resultado, self.macro)
+        #Results().plotFronts(self.resultado, self.macro)
+        #Results().plotFrontsIntakes(self.resultado, self.macro)
+        #Results().plotFrontFoods(self.resultado, self.macro)
+        #Results().boxSplotMacronutrientes(self.resultado, self.macro)
+        #Results().stackBarEnergyMacro(self.resultado, self.macro)
+        #self.resultado.plotFronts(self.macro.porcentagem)
+        #self.resultado.plotFrontsIntakes(self.macro, self.macro.porcentagem)
+        #self.resultado.plotFrontFoods(self.macro)
+        #self.resultado.boxSplotMacronutrientes(self.macro)
+        #self.resultado.stackBarEnergyMacro(self.macro)
