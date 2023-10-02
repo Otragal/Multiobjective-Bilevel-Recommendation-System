@@ -10,16 +10,16 @@ from time import time
 """
 Class GA()
 
-    Aqui inicializa o algoritmo NSGA-II
+    Here initializes the NSGA-II algorithm;
 
     __init__()
-        Preparação dos dados obtidos pelo usuário e banco de dados;
+        Preparation of data obtained by the user and database;
     
     iniciar()
-        inicia o NSGA-II;
+        Starts NSGA-II;
 
     resultados()
-        mostra os resultados finais do NSGA-II;
+        Shows the final results of the NSGA-II;
 
 """
 
@@ -34,11 +34,11 @@ class GA():
         self.restricaoMIN = FormatConverter.makeDictNutrition(self.macro.nutRestricao, self.macro.restricaoMIN)
         self.restricaoMAX = FormatConverter.makeDictNutrition(self.macro.nutRestricao, self.macro.restricaoMAX)
         if log:
-            print('GA::__init__\t Restrições MIN e Max')
+            print('GA::__init__\t Constrains MIN e Max')
             print(self.macro.nutRestricao)
             print(self.restricaoMIN)
             print(self.restricaoMAX)
-            print('Quantidade de Alimentos: ', len(macro.categoria))
+            print('Amount of Food: ', len(macro.categoria))
             print(macro.categoria)
             input("Press Enter to continue...")
             print()
@@ -47,45 +47,33 @@ class GA():
         self.model_name = 'modelo_'+str(macro.usuario.pessoa)
         self.model = GurobiModel.createModel(self.model_name)
         self.povo = Povo(macro=self.macro)
-        # Cria o Primeiro Povo
+        # Creates First Population
         self.povo.criarPovo(tamanho=self.maxPovo)
         self.resultado = None
         if mais_condicoes is not None:
             for cond in mais_condicoes:
                 FormatConverter.addOneDictNutrition(cond[0],cond[1],self.restricaoMIN)
                 FormatConverter.addOneDictNutrition(cond[2],cond[3],self.restricaoMAX)
-        #print(self.restricaoMAX)
-        #input("Press Enter to continue...")
+
 
     def iniciar(self):
-        # Define os fitness dos individuos
-        print('GA::iniciar\t Construindo a Primeira População...')
+        # Defines the fitness of individuals
+        print('GA::iniciar\t Building a First Population...')
         self.povo = FitnessGurobi.setFitnessPovo(self.macro, self.model, self.model_name, self.povo)
-        print("GA::iniciar\t Inicializando o Povo na EPOCA: %s" % (self.epocas))
-        #self.povo.getIndividuo(1).printIndividuoAll()
-        input("Precissione para Iniciar a Busca...")                                                                        
+        print("GA::iniciar\t Starting Povo in Epoch: %s" % (self.epocas))
+        input("Press Enter to continue...")                                                                        
         while self.epocas < self.maxEpoca:
             self.epocas += 1
-            print("\n\t Evoluindo Povo para EPOCA: %s" %(self.epocas))
+            print("\n\t Evolving People for Epoch: %s" %(self.epocas))
             self.povo, self.resultado = Genetic.evoluir_NSGA(self.povo, self.macro, self.maxPovo, self.model, self.model_name, self.log)
-            #self.povo.printPovo()
-            #input("Press Enter to continue...")
             print()
-            #self.resultado.saveFronts(self.macro.porcentagem, self.epocas)
-        self.resultados()
-       # melhorIndividuo = self.resultado.melhorIndividuo()
 
-        #print("GA::iniciar\t Melhor Individuo Encontrado")
-       
-        
-        #for ind in melhorIndividuo:
-        #    ind.printIndividuo()
-        
-        #self.resultado.plotFronts()
+        self.resultados()
+
 
     def resultados(self):
         fronteira = self.resultado.getFront()
-        print("GA::resultados\t Apresentando os resultados")
+        print("GA::resultados\t Presenting the results")
         print("CATEGORIAS\t", end='')
         for cat in self.macro.categoria:
             print(cat, '\t', end='')
@@ -96,6 +84,9 @@ class GA():
         print('\n')
 
         Results().createFrontsCSV(self.resultado, self.macro)
+        
+        # Others methods to plot graphs
+        
         #Results().plotFronts(self.resultado, self.macro)
         #Results().plotFrontsIntakes(self.resultado, self.macro)
         #Results().plotFrontFoods(self.resultado, self.macro)

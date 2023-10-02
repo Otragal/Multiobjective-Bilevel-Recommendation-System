@@ -5,21 +5,21 @@ from gurobipy import GRB
 """
 Class GurobiModel:
 
-    Contém o modelo GUROBI
+    Contains the GUROBI model (needs gurobi license)
 
     createModel()
-        Método que cria o Gurobi Model e salva o modelo com nome "name"
+        Method that creates the Gurobi Model and saves the model with name "name";
 
     loadModel()
-        Método que carrega o arquivo salve do Gurobi Model
+        Method that loads save file from Gurobi Model;
 
     solveCustomModel()
-        Método que tem o modelo linear do Gurobi
-        realiza vários salvamentos
-        retorna os resultados
+        Method that has Gurobi's linear model;
+        performs multiple saves;
+        returns the results;
 
     printSolution()
-        Método que print no terminal os resultados do modelo
+        Method that prints the results of the model in the terminal;
 
 """
 
@@ -27,92 +27,84 @@ class GurobiModel:
     
     @staticmethod                
     def createModel(name):
-        print("Criando Model Gurabi '{}'".format(name))
+        print("Creating Model Gurabi '{}'".format(name))
         model = gp.Model(name)
         model.write('{}.mps'.format(name))
-        print("Model {}.mps criado".format(name))
+        print("Model {}.mps created".format(name))
         return model
 
     @staticmethod
     def loadModel(name):
-        print('Procurando Model {}.mps'.format(name))
+        print('Searching Model {}.mps'.format(name))
         try:
             model = gp.read('{}.mps'.format(name))
             return model
         except IOError as exc:
-            raise RuntimeError('Não foi possível carregar o model') from exc
+            raise RuntimeError('Unable to load model') from exc
         
         finally:
-            print('Carregamento encerrado')    
+            print('Loading ended')    
         
     @staticmethod
     def solveCustomModel(model, macro, variables, objective, valuesConstrains, maxConstrains, minConstrains=None):
-        #variabeis de macro
+        # macro variables
         constrains = macro.nutRestricao
         tam_grupo = macro.desempenho.tam_categoria
         energia_distri = macro.desempenho.energia_refeicao
         macronutriente = macro.macronutriente
 
-        #variaveis de conta
+        # account variables
         r = 0
         index = 0
-        
         model.Params.LogToConsole = 0
 
+        # Create decision variables
         quantidade = {}
         for v in variables:
             quantidade[v] = model.addVar(lb=1.0, ub=151.0, vtype=GRB.INTEGER, name=v)
 
         z = sum(quantidade[v]*objective[v] for v in variables)
-        # Defenir o objectio, seria Maximizar
-        #model.setObjective(quantidade.prod(objective), GRB.MINIMIZE)
-        model.setObjective(z, GRB.MAXIMIZE)
-        # Definir as restrições
 
-        # Restrições de Objetivos
+        # Defining the objective would be to maximize
+        model.setObjective(z, GRB.MAXIMIZE)
         
-        # Restrições de Energia Minima
+
+        # Set the restrictions:
+        #   Minimum Energy Constraints
         model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables) >= 2400),'Energia')
-        # Restrição de Custo
+        #   Cost Constraint
         model.addConstr((gp.quicksum(valuesConstrains[v,'Preco']*quantidade[v] for v in variables) <= 500),'Preco')
-        # Restrições
+        #   Others Constraints
         model.addConstrs((gp.quicksum(valuesConstrains[v, c]*quantidade[v] for v in variables) >= minConstrains[c] for c in constrains),'MinCons')
         model.addConstrs((gp.quicksum(valuesConstrains[v, c]*quantidade[v] for v in variables) <= maxConstrains[c] for c in constrains),'MaxCons')
         
-        
-        #for (key, value) in set(tam_grupo.items()) & set(energia_distri.items()):
-        #    limite = energia_distri(key)
-        #    tam = tam_grupo(key)
-
         while (r < len(tam_grupo)):
             model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[index:(tam_grupo[r]+index)]) >= z*(energia_distri[r][0])),'_Ener_Min')
             model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[index:(tam_grupo[r]+index)]) <= z*(energia_distri[r][1])),'_Ener_Max')
             index += tam_grupo[r]
             r += 1
 
-
         while ( r < macronutriente.tamanho):
             model.addConstr((gp.quicksum(valuesConstrains[ v, macronutriente.nomes_macro[i] ]*quantidade[v] for v in variables) >= z*(macronutriente[i][0])), '_MacroNutre_Min')
             model.addConstr((gp.quicksum(valuesConstrains[ v, macronutriente.nomes_macro[i] ]*quantidade[v] for v in variables) <= z*(macronutriente[i][1])), '_MacroNutre_Min')
             r += 1
         
-        
-
+    
         # Solve Model
         model.optimize()
-        model.write('model_optimize.mps') # Salva
+        model.write('model_optimize.mps') # Save
         if model.solCount == 0 or model.status == GRB.INFEASIBLE:
             print("O modelo feito é Inviável")
             model.computeIIS()
-            model.write("model_problem_iis.ilp") # Model Infactivo Salva
+            model.write("model_problem_iis.ilp") # Model Infeasble Save
             model.feasRelaxS(0, True, False, True)
             model.optimize() 
-        model.write('final_model_optimize.mps') # Model Final Salva
+        model.write('final_model_optimize.mps') # Final Model Save
 
         nSolutions = model.SolCount
         nObjectives = model.NumObj
-        print('Numero de Soluções: ', nSolutions)
-        print('Numero de Objetivos: ', nObjectives)
+        print('Number of Solutions: ', nSolutions)
+        print('Number of Objectives: ', nObjectives)
 
         solution = GurobiModel.giveSolution(model, len(variables))
         # PRINT
@@ -123,40 +115,62 @@ class GurobiModel:
 
     @staticmethod
     def printSolution(model):            
-        # Para reportar os resultados
-        #   Função objetivo:
+        # To report results
+        #   Objective function:
         print('Obj: %g' % model.objVal)
-        #   Valores
+        #   Values
         for valores in model.getVars():
             print('%s %g' % (valores.varName, valores.x))
 
 
-# >>>>>>>>>>>>>>>> MÉTODOS DE TESTES
+
+"""
+>>>>>>>>>>>>>>>> TESTING METHODS
+
+    The methods below are test methods, they were used to test several Gurobi models.
+    The solveCustomModel() method is the final result after all tests.
+
+    They were used to try how to use the Gurobi library.
+    They are not working correctly, but they offer interesting examples of how to use the gurobi library in Python
+
+    solveModel() was used to understand the addition of constraints;
+    solveMultiModel() was used to understand how to create a solver with two objective functions;
+
+"""
+
 
     @staticmethod
     def solveModel(model, constrains, variables, objective, valuesConstrains, maxConstrains, minConstrains=None):
 
-        # Criar variaveis de decisões
+        # Create decision variables
+        #   Its possible to create this way:
         #quantidade = model.addVars(variables, name="Comida")
+
+        #   Or this way:
         quantidade = {}
         for v in variables:
             quantidade[v] = model.addVar(lb=1.0, ub=151.0, vtype=GRB.INTEGER, name=v)
 
         z = sum(quantidade[v]*objective[v] for v in variables)
-        # Defenir o objectio, seria Maximizar
+        # Objective Function
+        #   Its possible to set  
         #model.setObjective(quantidade.prod(objective), GRB.MINIMIZE)
+        #   Or by this
         model.setObjective(z, GRB.MINIMIZE)
-        # Definir as restrições
+
+        # Set the restrictions
+        #   One of the manual ways to create restrictions:
         if minConstrains is not None:
             
-            # Restrições de Energia Minima
+            # Minimum Power Constraints
             model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables) >= 2000),'Energia')
-            # Restrição de Custo
+            # Cost Constraint
             model.addConstr((gp.quicksum(valuesConstrains[v,'Preco']*quantidade[v] for v in variables) <= 500),'Proteina')
-            # Restrições
+            # Other Constraints
             model.addConstrs((gp.quicksum(valuesConstrains[v, c]*quantidade[v] for v in variables) >= minConstrains[c] for c in constrains),'MinCons')
             model.addConstrs((gp.quicksum(valuesConstrains[v, c]*quantidade[v] for v in variables) <= maxConstrains[c] for c in constrains),'MaxCons')
-            # Restrição Máxima de Energia
+            
+            # Maximum Energy Restriction
             #model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables) == z), 'Energia Total')
             model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[:3]) >= z*0.15),'CM_Min')
             model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[:3]) <= z*0.35),'CM_Max')
@@ -180,16 +194,6 @@ class GurobiModel:
             model.optimize()
         model.write('teste4.mps')
 
-        #obj = math.ceil(model.objVal)
-        ## Restrição Máxima de Energia
-        #model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[:3]) >= obj*0.15),'CM_Min')
-        #model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[:3]) <= obj*0.35),'CM_Max')
-        #model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[3:7]) >= obj*0.50),'AJ_Min')
-        #model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[3:7]) <= obj*0.80),'AJ_Max')
-        #model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[7:]) >= obj*0.05),'La_Min')
-        #model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[7:]) <= obj*0.15),'La_Max')
-        #model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables) <= maxConstrains['Energia1']),'Energia100')
-
         nSolutions = model.SolCount
         nObjectives = model.NumObj
         print('Numero de Soluções: ', nSolutions)
@@ -204,49 +208,48 @@ class GurobiModel:
     @staticmethod
     def solveMultiModel(model, constrains, variables, objective1, objective2, valuesConstrains, maxConstrains, minConstrains=None):
 
-        # Criar variaveis de decisões
-        #quantidade = model.addVars(variables, name="Comida")
+        # Create decision variables
         quantidade = {}
         for v in variables:
             quantidade[v] = model.addVar(lb=1.0, ub=100.0, vtype=GRB.INTEGER, name=v)
 
-        # Definir as Prioridades: VET = 2.0 e CUSTO = 1
+        # Set Priorities: VET = 2.0 e CUSTO = 1
         SetObjPriority = [2, 1]
-        # Definir os Pesos de cada Objetivo: VET =1.0 e CUSTO -1.0
-        # No Documento para MINIMIZAR, o peso deve estar negativo
+        # Define the Weights of each Objective: VET =1.0 e CUSTO -1.0
+        # In the MINIMIZE Document, the weight must be negative
         SetObjWeight = [1.0, -1.0]
-        # Defenir o objectio, seria Maximizar
+        # Defining the objective would be to maximize
         model.ModelSense = GRB.MAXIMIZE
 
-        # Define quantas soluções podem ter na coleta
+        # Defines how many solutions can be in the collection
         model.setParam(GRB.Param.PoolSolutions, 100)
 
-        # Configurar o modelo que terá dois objetivos
-        # Objetivo 0: VET
+        # Configure the model that will have two objectives
+        # Objective 0: VET
         objn = sum(quantidade[v]*objective1[v] for v in variables)
         model.setObjectiveN(objn, 0, SetObjPriority[0], SetObjWeight[0], 1.0+0, 0.01, 'VET')
-        # Objetivo 1: CUSTO
+        # Objective 1: CUSTO
         objn = sum(quantidade[v]*objective2[v] for v in variables)
         model.setObjectiveN(objn, 1, SetObjPriority[1], SetObjWeight[1], 1.0+1, 0.01, 'CUSTO')
-        # Definir as restrições
+        # Set the restrictions
         if minConstrains is not None:
             
-            # Restrições de Energia
+            # Energy Constraints
             model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables) >= 2000),'Energia')
-            # Restrição de Custo
+            # Cost Constraint
             model.addConstr((gp.quicksum(valuesConstrains[v,'Preco']*quantidade[v] for v in variables) <= 500),'Preco')
-            # Restrições
+            # Other Constraints
             model.addConstrs((gp.quicksum(valuesConstrains[v, c]*quantidade[v] for v in variables) >= minConstrains[c] for c in constrains),'MinCons')
             model.addConstrs((gp.quicksum(valuesConstrains[v, c]*quantidade[v] for v in variables) <= maxConstrains[c] for c in constrains),'MaxCons')
             
-            # Restrição de Quantidade
+            # Quantity Restriction
             #model.addConstrs((quantidade[v] >= 1 for v in variables),'Qtd_Min')
             
             model.addConstr((gp.quicksum(quantidade[v] for v in variables[:3]) <= 40),'CM')
             model.addConstr((gp.quicksum(quantidade[v] for v in variables[4:7]) <= 70),'A/J')
             model.addConstr((gp.quicksum(quantidade[v] for v in variables[7:]) <= 40),'La')
 
-            # Restrição Máxima de Energia
+            # Maximum Energy Restriction
             #model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[:3]) >= minConstrains['Energia1']*0.15),'CM_Min')
             #model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[:3]) <= minConstrains['Energia1']*0.35),'CM_Max')
             #model.addConstr((gp.quicksum(valuesConstrains[v,'Energia1']*quantidade[v] for v in variables[3:7]) >= minConstrains['Energia1']*0.50),'AJ_Min')
@@ -309,7 +312,11 @@ class GurobiModel:
 
         return model
 
+"""
 
+    Other ancient methods of presenting solutions and answers
+
+"""
 
     @staticmethod
     def separateSolutions(model, tamanho, nSolutions):

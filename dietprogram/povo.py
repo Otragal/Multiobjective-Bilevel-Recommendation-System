@@ -13,35 +13,35 @@ import csv
 """
 Class Povo:
 
-    Estrutura do Povo do NSGA-II
+    NSGA-II People Structure
 
     __init__()
-        Método construtor da classe;
+        Class constructor method;
 
     criarGenes()
-        Método de criar os genes dos Indivíduos;
-        Da lista de genes obtido pelo Macro, os indivíduos recebem os alimentos aleatoriamente para cada categoria;
+        Method of creating the genes of Individuos;
+        From the list of genes obtained by Macro, individuals receive food randomly for each category;
 
     criarPovo()
-        Método de criar Povo do NSGA-II;
-        Método mais robusto que criarGenes();
+        Method of creating NSGA-II People;
+        More robust method than criarGenes();
 
     size()
-        Método que retornar o tamanho da população;
+        Method that returns the size of the population;
 
     extend()
-        Método de extend do Povo
-        Extende a lista de indivíduos;
+        Povo's extend method;
+        Extends the list of individuals;
 
     append()
-        Método de append do Povo
-        Adiciona mais indivíduos na lista de indivíduos;
+        Povo's append method
+        Adds more individuals to the individuals list;
 
     melhorIndividuo()
-        Pega os melhores indivíduos, ou seja, pega os individuos da fronteira de Pareto;
+        It takes the best individuals, that is, it takes the Pareto frontier individuals;
 
     getIndividuo()
-        Método que pega um indíviduo da lista de indivíduos;
+        Method that takes an individual from the list of individuals;
 
 """
 
@@ -59,7 +59,7 @@ class Povo():
     
     def criarGenes(self, categorias):
         cromossomo = []
-        # lista de listas das categorias
+        # category list of list
         for c in categorias:
             cromossomo.append(self.taco.selectQuery(c))
         return cromossomo
@@ -100,6 +100,14 @@ class Povo():
         for i in self.individuos:
             i.printIndividuo()
 
+"""
+    CHART METHODS (PLOT CHARTS)
+
+    Chart presentation methods after the NSGA-II Algorithm has resolved the search
+    All these methods have been moved to results.py
+"""
+
+
     def saveFronts(self, porcentagem, epoca):
         if porcentagem is not None and porcentagem != 0:
             percent = ', alimento com {}g'.format(porcentagem)
@@ -123,6 +131,7 @@ class Povo():
         plt.xlabel('Concentração (Menor é Melhor)')
         plt.ylabel(('Custo Unitário (Menor é Melhor)'))
         if epoca >= 0:
+            # Save Chart
             plt.savefig('/home/otragal/Workspace/Multiobjective-Bilevel-Recommendation-System/dietprogram/pics/teste10Epoca{}.png'.format(epoca))
         else:
             print('Error Epoca < 0')
@@ -211,6 +220,7 @@ class Povo():
         plt.ylabel('Amount of Food Nutrition (g)')
         plt.show()
         
+
     def plotFrontFoods(self, macro):
         if macro.porcentagem is not None and macro.porcentagem != 0:
             percent = 'Distribution of Food Category for each Non-Dominated Candidate Solutions, food with'.format(macro.porcentagem)

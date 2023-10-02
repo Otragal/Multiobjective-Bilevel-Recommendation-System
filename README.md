@@ -1,80 +1,81 @@
-# Sistema de Remendação de Dieta Alimentar Multi-Objetivo
+# Multi-Objective Diet Patching System
 
-Autor: Vítor de Oliveira Pochmann (Otragal)
-Orientador: Fernando Von Zuben
+Author: Vítor de Oliveira Pochmann (Otragal)
+Advisor: Fernando Von Zuben
 
 
-## Sobre
+## About
 
-Este trabalho pertence ao projeto de Mestrado deste autor na Faculdade de Engenharia Elétrica e de Computação - Unicamp (2020 - 2022).
+This work belongs to this author's Master's project at the Faculty of Electrical and Computer Engineering - Unicamp (2020 - 2022).
 
-Este trabalho é um sistema de recomendação de dieta alimentar multi-objetivo (sistema bi-nível) em que utiliza dois algoritmos *solvers* para encontrar um conjunto de cardápios das refeições diárias (pratos para café da manhã, almoço, jantar e lanche).
+This work is a multi-objective dietary recommendation system (bi-level system) that uses two *solvers* algorithms to find a set of daily meal menus (breakfast, lunch, dinner and snack).
 
-A busca sobre encontrar as melhores soluções de cardápios é realizada atráves do método Pareto-Ótimo, pelo algoritmo [NSGA-II](https://ieeexplore.ieee.org/document/996017) com uso de objetivos de cada solução candidata, calculados pelo *solver* [Gurobi](https://www.gurobi.com/).
+The search for finding the best menu solutions is carried out using the Pareto-Optimum method, by the [NSGA-II](https://ieeexplore.ieee.org/document/996017) algorithm using objectives of each candidate solution, calculated by [Gurobi](https://www.gurobi.com/) *solver*.
 
-![Estrutura do Sistema](/home/ancalangon/Pictures/Figura_6.png)
+![System Structure](/sample/system.png)
 
-Ambiente de desenvolvimento usado:
+Development environment used:
 
 - Ubuntu 20.04 GNU Linux 64-bits
 
 
-## Requisitos
+## Requirements
 
-- Python Versão 3.7 ou maior (com ambiente virtual)
-- SQLite3 (Banco de Dados)
-- [Gurobi Versão 9.1.0](https://www.gurobi.com/)
+- Python Version 3.7 or greater (with virtual environment)
+- SQLite3 (Database)
+- [Gurobi Versão 9.1.0] or greater(https://www.gurobi.com/)
 
-## Mapa do Repositório
+## Repository Map
 
-- \root
-    - \database (Banco de Dados)
-    - \dietprogram (\src do projeto)
-        - \app.py (main do projeto)
+- \Multiobjective-Bilevel-Recommendation-System 
+    - \database (backup Database with all food information and original prices)
+    - \dietprogram (\src of project)
+        - \app.py (main of project)
 
-## Instalação
+## Installation
 
 ### Download
 
-Realiza a clonagem `git clone` ou download zip do repositório `master`.
+Performs `git clone` cloning or zip download from `master` repository.
 
-### Prapação do Ambiente
+### Environment Preparation
 
-1. Cria um ambiente virtual para este projeto (ou apenas deixe em sua máquina).
-2. Baixe as bibliotecas dependendes do projeto com `pip3 install <nome_da_biblioteca>`
+1. Create a virtual environment for this project (or just leave it on your machine).
+2. Download the project's dependent libraries with `pip3 install <library_name>`
     - sqlite3
     - numpy
     - unicodedata
     - matplotlib
-    - tkinter
-3. Ter o Gurobi e sua licença em sua máquina para usar as bibliotecas:
+    - pandas
+3. Have Gurobi and its license on your machine to use the libraries:
     - gurobipy
 
-**NOTA**: A versão utilizada da ferramenta Gurobi foi `Gurobi 9.1.0`. É possível baixar esta versão no Site Oficial, mas pode utilizar a ferramenta com a versão mais recente.
+**NOTE**: The used version of the Gurobi tool was `Gurobi 9.1.0`. It is possible to download this version from the Official Site, but you can use the tool with the latest version.
 
-### Obtendo Gurobi
+### Getting Gurobi
 
-Gurobi Solver é uma ferramenta privada da empresa Gurobi Optimization. É possível usar esta ferramenta gratuitamente através da *Licença Acadêmica*. Caso for usar para outros fins, segue os procedimentos no [Site Oficial](https://www.gurobi.com/).
+Gurobi Solver is a proprietary tool from Gurobi Optimization company. It is possible to use this tool for free through the *Academic License*. If using it for other purposes, follow the procedures on the [Official Site](https://www.gurobi.com/).
 
 #### Download Gurobi
 
-1. Deve acessar e criar uma conta em visão "Acadêmica" no [Site Oficial do Gurobi Optimization](https://www.gurobi.com/).
-2. Baixar a ferramenta Gurobi em [Gurobi Optimizer](https://www.gurobi.com/downloads/gurobi-optimizer-eula/). É possível usar o Gurobi com Anaconda.
-    - LINUX (Ubuntu): Existe um guia de instalação feita pela [Unicamp](https://www.ic.unicamp.br/~cid/cursos/MC658/201901/tutorial-pacotes.pdf) ou tem a [Documentação no Site Oficial](https://www.gurobi.com/documentation/9.5/remoteservices/linux_installation.html).
-    - WINDOWS 64-bits: Existe um guia de instalação feita pela [Universidade de Missipi](https://it.engr.msstate.edu/wp-content/uploads/2017/12/Gurobi-Installation_2017.pdf) ou tem a [Documentação no Site Oficial] (https://www.gurobi.com/documentation/9.5/remoteservices/windows_installation.html).
-    - MAC OS: Tem a [Ducmentação no Site Oficial](https://www.gurobi.com/documentation/9.5/remoteservices/macos_installation.html)
+1. Must log in and create an account in "Academic" view on [Gurobi Optimization Official Website](https://www.gurobi.com/).
+2. Download the Gurobi tool from [Gurobi Optimizer](https://www.gurobi.com/downloads/gurobi-optimizer-eula/). É possível usar o Gurobi com Anaconda.
+    - LINUX (Ubuntu): There is an installation guide made by [Unicamp](https://www.ic.unicamp.br/~cid/cursos/MC658/201901/tutorial-pacotes.pdf) or in the [Documentation on Official Site](https://www.gurobi.com/documentation/9.5/remoteservices/linux_installation.html).
+    - WINDOWS 64-bits: There is an installation guide made by the [University of Mississippi](https://it.engr.msstate.edu/wp-content/uploads/2017/12/Gurobi-Installation_2017.pdf) or in [Documentation on Official Site](https://www.gurobi.com/documentation/9.5/remoteservices/windows_installation.html).
+    - MAC OS: In [Documentation on Official Site](https://www.gurobi.com/documentation/9.5/remoteservices/macos_installation.html)
 
-#### Licença do Gurobi
+#### Gurobi license
 
-Após a instalação da biblioteca gurobi em sua máquina é necessário ter uma licença.
+After installing the gurobi library on your machine, a license is required.
 
-1. Tendo conta acessada no Site Oficial, inicia a etapa de adquirir a [Academic Licence](https://www.gurobi.com/downloads/end-user-license-agreement-academic/).
-2. Aceita as condições e pega a licença.
-3. Coloque a licença no diretório padrão do sistema. Clique aqui para ver a [Recomendação de colocar a licença na sua máquina](https://support.gurobi.com/hc/en-us/articles/360013417211-Where-do-I-place-the-Gurobi-license-file-gurobi-lic-).
+1. Having accessed the account on the Official Website, the step of acquiring the [Academic License begins](https://www.gurobi.com/downloads/end-user-license-agreement-academic/).
+2. Accept the conditions and get the license.
+3. Accept the conditions and get the license.
+3. Place the license in the default system directory. Click here to see the [Recommendation to put the license on your machine](https://support.gurobi.com/hc/en-us/articles/360013417211-Where-do-I-place-the-Gurobi-license-file-gurobi-lic-).
 
-Em Linux, recomenda-se colocar a licença no diretório em `/opt/gurobi` ou `opt/gurobiXXX` (XXX = numero da versão).
+On Linux, it is recommended to place the license in the directory at `/opt/gurobi` or `opt/gurobiXXX` (XXX = version number).
 
-Ainda em Linux, deve criar um `PATH` para que o python entenda que existe a biblioteca Gurobi. Em seu `.bashrc` ou `.profile_bash`, insere estas linhas de código e realiza as alterações necessárias:
+Still on Linux, you must create a `PATH` so that python understands that the Gurobi library exists. In your `.bashrc` or `.profile_bash`, insert these lines of code and make the necessary changes:
 
 ```bash
 export GUROBI_HOME="/opt/gurobiXXX/linux64"
@@ -82,4 +83,6 @@ export PATH="${PATH}:${GUROBI_HOME}/bin"
 export LD_LIBRARY_PATH="${GUROBI_HOME}/lib"
 export GRB_LICENSE_FILE="/opt/gurobiXXX/linux64/gurobi.lic"
 ```
+
+## How to Use
 

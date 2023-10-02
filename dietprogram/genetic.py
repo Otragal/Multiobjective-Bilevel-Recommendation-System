@@ -12,6 +12,45 @@ import numpy as np
 import random
 import csv 
 
+
+"""
+Class Genetic()
+
+    Contains NSGA-II functions and methods
+
+    evoluir_NSGA()
+        NSGA-II algorithm;
+
+    combine_first_population()
+        Method to perform the first combination of the current population with the children;
+
+    crossover()
+        Uniform crossover method 50%;
+
+    mutation()
+        Uniform mutation method 50% for each gene;
+
+    torneio()
+        Selection method Tournament of 2 or 5 individuals;
+
+    crowding_operator()
+        NSGA-II Crowding Operator Method, selection operator;
+
+    fast_nondominated_sort()
+        NSGA-II fast-nondominated-sort method;    
+
+    calculate_crowding_distance()
+        NSGA-II crowding-distance calculation method;
+
+    make_new_pop()
+        Method for creating a new NSGA-II population;
+
+ Example Candidate Solution with a Scope Diet
+ Categoria : ['cereais','leites','frutas','verduras','leguminosas','carnes','pescados']
+ Indice:     [     1,      2,      3,         4,           5,         6,       7]
+
+"""
+
 def find_duplication(codigo, log=None):
         duplicada = []
         d = defaultdict(list)
@@ -24,46 +63,11 @@ def find_duplication(codigo, log=None):
 
         dupla = [v for k,v in d.items() if len(v)>1]
         if log:
-            print('Genetic::find_duplication\t Existe duplicação')
+            print('Genetic::find_duplication\t There is duplication')
             print(duplicada)
         return duplicada, dupla
 
-"""
-Class Genetic()
 
-    Contém as funções e métodos do NSGA-II
-
-    evoluir_NSGA()
-        Algoritmo do NSGA-II;
-
-    combine_first_population()
-        Método para realizar a primeira combinação da população atual com os filhos;
-
-    crossover()
-        Método crossover uniforme 50%;
-
-    mutation()
-        Método mutação uniforme 50% para cada gene;
-
-    torneio()
-        Método de seleção Torneio de 2 indivíduos;
-
-    crowding_operator()
-        Método Operador Crowding do NSGA-II, operador de seleção;
-
-    fast_nondominated_sort()
-        Método fast-nondominated-sort do NSGA-II;    
-
-    calculate_crowding_distance()
-        Método de cálculo do crowding-distance do NSGA-II;
-
-    make_new_pop()
-        Método para criar uma nova população do NSGA-II;
-
-"""
-
-# Categoria : ['cereais','leites','frutas','verduras','leguminosas','carnes','pescados']
-# Indice:     [     1,      2,      3,         4,           5,         6,       7]
 class Genetic():
 
     crossoverUniforme = 0.5
@@ -74,7 +78,7 @@ class Genetic():
     @staticmethod
     def evoluir_NSGA(povo, macro, maxPovo, model, model_name, log=None):
         
-        # Geração do Q(t)
+        # Geration of Q(t)
         povo = Genetic.combine_first_population(povo, macro, model,model_name)
         # F = fast-non-dominated-sort(Rt)
         povo = Genetic.fast_nondominated_sort(povo)
@@ -91,7 +95,7 @@ class Genetic():
             # i = i + 1
             front_number += 1
 
-        # Precisa fazer o crwonding_distance no F(i) antes do Sort(F(i), <n)        
+        # Need to do crwonding_distance on F(i) before Sort(F(i), <n)        
         povo.fronts[front_number] = Genetic.calculate_crowding_distance(povo.fronts[front_number])        
         # Sort(Fi, <n)
         povo.fronts[front_number].sort(key=lambda individuo: individuo.crowding_distance, reverse=True)
@@ -109,29 +113,6 @@ class Genetic():
         povo.extend(Qt)
         return povo
 
-    # MÉTODO ABSOLETO
-    #@staticmethod
-    #def evoluirPovo(povo, categoria, nutricao, restricaoMIN, restricaoMAX, macro, log):
-    #    novoPovo = Povo(povo.size(), log)
-    #    
-    #    for i in range(povo.size()):
-    #        individuo1 = Genetic.torneio(povo, nutricao, restricaoMIN,restricaoMAX, log)
-    #        individuo2 = Genetic.torneio(povo, nutricao, restricaoMIN,restricaoMAX, log)
-    #        novoIndividuo = Genetic.crossover(individuo1, individuo2, log)
-    #        novoIndividuo = Genetic.mutation(novoIndividuo, categoria)
-    #        print("Update?")
-    #        novoIndividuo = Genetic.updateFitness(novoIndividuo)
-    #        print("Pera não deu erro?")
-    #        if log:
-    #            print("Genetic::evoluirPovo\t Novo Filho Gerado:n", end='')
-    #            novoIndividuo.printIndividuo()
-    #        
-    #        novoPovo.individuos.append(novoIndividuo)
-    #        random.shuffle(novoPovo.individuos)
-    #    print("Genetic::evoluirPovo\t Novo Povo Criado")
-    #    return novoPovo
-    
-    
 
     @staticmethod
     def crossover(ind1, ind2, macro,log=None):
@@ -145,11 +126,11 @@ class Genetic():
         
         if log:
             print("Genetic::crossover\t Realizando Crossover:")
-            print(' I have: ', end='')
+            print(' Ind 1: ', end='')
             ind1.printIndividuo()
-            print(' I have: ', end='')
+            print(' Ind 2: ', end='')
             ind2.printIndividuo()
-            print('Ahn!')
+            print('Crossover: !')
             filho.printIndividuo()
         return filho
     
@@ -159,19 +140,19 @@ class Genetic():
         duplicada, dupla = find_duplication(individuo.codigo, log)
         duplicada_ref = []
         
-        # filtro repetir_alimento
+        # repeat_food filter
         if not macro.extra.repetir_alimento and len(duplicada)>0:
-            # filtro fixar_alimento
+            # fix_food filter
             if macro.extra.fixar_alimento:
                 for i in duplicada:
                     if i in macro.filtro.indice:
                         duplicada.pop(i)
             
         else:
-            # filtro repetir alimento somente nas refeições
+            # filter repeat food only at meals
             if not macro.extra.repetir_alimento_ref and len(dupla)>0:
                 if len(dupla[0]>0):
-                    # filtro fixar alimento
+                    # filter fix food
                     if macro.extras.fixar_alimento:
                         for dp in dupla:
                             for i in range(len(dp)):
@@ -181,11 +162,11 @@ class Genetic():
                     point = 0
                     for ref in macro.desempenho.tam_categoria:
                         for dp in dupla:
-                            a = set(dp) # 1:{1,2,7}, 2:{3,5,6,8}
-                            b = set(range(point,(point+ref))) # 1:{1,2,3}, 2:{4,5,6,7}
-                            c = list(a & b) # 1:{1,2}, 2:{5,6}
+                            a = set(dp) # Ex -> 1:{1,2,7}, 2:{3,5,6,8}
+                            b = set(range(point,(point+ref))) # -> 1:{1,2,3}, 2:{4,5,6,7}
+                            c = list(a & b) # -> 1:{1,2}, 2:{5,6}
                             if len(c) > 1:
-                                duplicada_ref.extend(list(c)) # 1:[1,2], 2:[1,2,5,6]
+                                duplicada_ref.extend(list(c)) # -> 1:[1,2], 2:[1,2,5,6]
         
         for i in range(individuo.size()):
             if not macro.extra.repetir_alimento and i in duplicada:
@@ -198,45 +179,16 @@ class Genetic():
                         individuo.setGene(i, macro.taco.selectRandomFood(macro.categoria[i], macro.nutricao))
                     
 
-
-        #for i in range(individuo.size()):
-        #    if macro.extra.fixar_alimento:
-        #        if i not in macro.filtro.indice:
-        #            if random.random() < Genetic.mutationValue:
-        #                individuo.setGene(i, macro.taco.selectRandomFood(macro.categoria[i], macro.nutricao))
-        #                if log:
-        #
-        #                     print("Genetic::mutation\t mutação realizada com filtro fixar_alimentos em ",macro.categoria[i])
-        #if macro.extra.fixar_alimento:
-        #    return Genetic.force_fix_alimento(individuo, macro, log=None)
-        #else:
-
-        #for i in range(individuo.size()):
-        #    if random.random() < Genetic.mutationValue:
-        #            individuo.setGene(i, macro.taco.selectRandomFood(macro.categoria[i], macro.nutricao))
-        #            if log:
-        #                print("Genetic::mutation\t mutação realizada em: ",macro.categoria[i])
-        #    individuo = Genetic.uniform(individuo, macro, log=None)
-
-        #if macro.extra.repetir_alimento_ref:
-        #    return Genetic.force_non_duplication_filtro(individuo,macro, log=False)
         if log:
             print("Genetic::mutation\t Individuo Mutato:")
             individuo.printIndividuo()
         
         return individuo
     
-        
-
-
+    
     @staticmethod
     def torneio(povo, log=None):
         torneio = random.sample(povo.individuos, Genetic.tamanhoTorneio)
-        #for i in range(Genetic.tamanhoTorneio):
-        #    random_id = int(random.random() * povo.size())
-        #    escolhido = povo.getIndividuo(random_id)
-            
-        #    torneio.append(escolhido)
 
         if (log):
             print("Genetic::torneio\t Competidores:")
@@ -258,7 +210,7 @@ class Genetic():
         return melhor_participante
 
 
-    # NSGA-II
+    # NSGA-II - crowding operator
     @staticmethod
     def crowding_operator(individuo, outro_individuo):
         if (individuo.rank < outro_individuo.rank) or \
@@ -267,10 +219,10 @@ class Genetic():
         else:
             return False
 
-    # NSGA-II
+    # NSGA-II - fast nondominated sort
     @staticmethod
     def fast_nondominated_sort(population):
-        # Inicia a fronteira de Pareto
+        # Starts the Pareto frontier
         population.fronts = [[]]
         # for each p ( P 
         for individuo in population.individuos:
@@ -294,7 +246,7 @@ class Genetic():
                 individuo.rank = 0
                 # F1 = F1 U {p}
                 population.fronts[0].append(individuo)
-        # i = 1 (primeiro indice)
+        # i = 1 (first index)
         i = 0
         # while Fi != None
         while len(population.fronts[i]) > 0:
@@ -316,7 +268,7 @@ class Genetic():
             population.fronts.append(Qfront)
         return population
 
-    #NSGA-ii
+    #NSGA-II - calculate crowding distance
     @staticmethod
     def calculate_crowding_distance(front):
 
@@ -348,14 +300,14 @@ class Genetic():
         
         return front
 
-    # NSGA-II
+    # NSGA-II - make new population
     @staticmethod
     def make_new_pop(population, macro, model, name_model):
         children = []
         while len(children) < population.size():
             parent1 = Genetic.torneio(population)
             parent2 = parent1
-            # Evitar que o mesmo indivíduo ganhe duas vezes
+            # Prevent the same individual from winning twice
             while parent1.cromossomo == parent2.cromossomo:
                 parent2 = Genetic.torneio(population)
             child = Genetic.crossover(parent1, parent2, macro)

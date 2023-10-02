@@ -1,24 +1,24 @@
-# Banco de Dados
+# Database
 
-Aqui contém o backup do Banco de Dados utilizado para executar o sistema.
+Here contains the backup of the database used to run the system.
 
-Para ver os dados deste banco, é necessário do programa [BD Browser for SQLite](https://sqlitebrowser.org/).
+To view the data in this database, you will need the [BD Browser for SQLite](https://sqlitebrowser.org/) program.
 
-Em `/dietprogram/dabase.py`, é necessário alterar o PATH do banco de dados.
+In `/dietprogram/dabase.py`, it is necessary to change the database PATH.
 
 ```python
 
 class TacoDB():
     def __init__(self):
         try:
-            print("TacoDB::__init__\t Iniciando Banco de Dados")
-            # PATH para o Banco de Dados SQLite
-            self.path ='/path/do/banco/de/dados/'
+            print("TacoDB::__init__\t Starting Database")
+            # PATH
+            self.path ='/path/of/database/'
             self.database = 'taco4dataset.db'
             self.connect = sqlite3.connect('{url}{db}'.format(url=self.path,db=self.database))
             self.cur = self.connect.cursor()
-            print('Conexão criada em '+self.database)
+            print('Connection created in '+self.database)
         except sqlite3.Error as error:
-            print("Falha em tentar ler os dados no sqlite table ", error)
+            print("Failed to try to read data from sqlite table!", error)
 
 ```

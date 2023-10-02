@@ -1,0 +1,24 @@
+# Ignore Environments
+.env
+env/
+pyvenv.cfg
+
+# Distribution / Packagin
+bin/
+build/
+dist/
+lib/
+lib64/
+var/
+share/
+
+# Ignore Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+
+# Cache
+.cache
+
+# DUMPY files
+gurobicompare/

@@ -10,6 +10,6 @@
 
         dupla = [v for k,v in d.items() if len(v)>1]
         if log:
-            print('Genetic::find_duplication\t Existe duplicação')
+            print('Genetic::find_duplication\t There is duplication!')
             print(duplicada)
         return duplicada, dupla

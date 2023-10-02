@@ -4,22 +4,22 @@ import random
 """
 Class Individuo:
     
-    Estrutura do Indivíduo do NSGA-II
+    NSGA-II Structure of the Individual
 
     __init__()
-        Construtor da classe
+        class constructor
     
     generateGene()
-        Método de gerar os genes do indivíduo ao pegar os dados presentes do Macro;
+        Method of generating the individual's genes by taking the data present from the Macro;
 
     fixComida()
-        Método do filtro "fixar a comida" para que o NSGA-II não possa alterar este alimento;
+        "Fix the food" filter method so that the NSGA-II cannot change this food;
 
     dominates()
-        Método de verificar se o indivíduo A domina o indivíduo B;
+        Method of verifying whether individual A dominates individual B;
 
     size()
-        Método de retornar o tamanho do cromosso do Indivíduo;
+        Method of returning the size of the Individual's chromosome;
 
 """
 
@@ -53,9 +53,9 @@ class Individuo():
             self.cromossomo[filtro.indice[i]] = filtro.cromoxomo[i]
         
 
-    #NSGA
+    #NSGA - dominates
     def dominates(self, outro):
-        # Se A domina  B quando:
+        # If A dominates B when:
         andC = True
         orC = False
         for first, second in zip(self.fitness, outro.fitness):
@@ -94,14 +94,14 @@ class Individuo():
         if hasattr(self, c):
             return getattr(self ,c)
         else:
-            print('Individuo::getCategoria\t Não existe atributo {}'.format(c))
+            print('Individuo::getCategoria\t There is no attribute {}'.format(c))
             return None
 
     def setCategoria(self, c, alimento):
         if hasattr(self, c):
             setattr(self, c, alimento)
         else:
-            print('Individuo::setCategoria\t Não existe atributo {}'.format(c))
+            print('Individuo::setCategoria\t There is no attribute {}'.format(c))
 
 # MÉTODOS DE PRINT
 
@@ -113,7 +113,7 @@ class Individuo():
             print(gene[0].split(', ',1)[0], '\t', end= '')
         print(self.fitness, '\n')
         for key, value in enumerate(self.atributos):
-            print("ATRIBUTO ",key,"\t", end='')
+            print("ATTRIBUTE ",key,"\t", end='')
             for v in value:
                 print("%.2f" % v,'\t',end='')
             print('\n')

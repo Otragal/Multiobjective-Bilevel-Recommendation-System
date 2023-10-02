@@ -4,23 +4,23 @@ import random
 """
 Class Macro:
 
-    É o PACOTE, tão falado nas dissertações...
+    It's the PACKAGE, so talked about in the dissertations...
 
     __init__()
-        Método construtor da classe;
+        Class constructor method;
 
     inicizalizarGenes()
-        Método que pega os dados das categorias do Banco de Dados;
-        Para cada categoria, ele armazena em um indice de uma lista self.gene;
+        Method that takes data from the categories of the Database;
+        For each category, it stores an index of a self.gene list;
 
     construirCrossomoFixo()
-        Método do filtro "fixar aliemento"
-        Pega a categoria desejada e coloque no indice especificado pelo usuário;
+        Filter method "fix feed";
+        Get the desired category and put it in the index specified by the user;
 
     inicializarRestricao()
-        Método que pega as restrições do Banco de Dados;
-        As restrições MAX e MIN são armazenados em listas diferentes;
-        Para cada restrição é armazenado em um indice da lista;
+        Method that takes the constraints from the Database;
+        The MAX and MIN constraints are stored in different lists;
+        For each restriction an index is stored in the list;
 
 """
 
@@ -39,10 +39,6 @@ class Macro:
         self.qtd_objetivos = qtd_obj
 
         self.extra = ex    
-        #self.tam_categoria = tam_categoria
-        #self.energia_refeicao = energia_refeicao
-        #self.quantidade_refeicao = quantidade_refeicao
-        #self.peso_refeicao = peso_refeicao
 
         self.nutricao = nutricao
         self.porcentagem = porcentagem
@@ -65,30 +61,12 @@ class Macro:
         else:
             print('Macro::__init__\t Filtro "Fixar Alimentos" desativado')
 
-    # MÉTODO ANTIGO
-    #def definirGenes(self):
-    #    # Cromossomo = Cereal, Leite, Fruta, Vegetal, Carne, Fruta, Cereal,Leite, Fruta]
-    #    self.genes.append(self.selectCategoria('cereais', self.nutricao))
-    #    self.genes.append(self.selectCategoria('leites', self.nutricao))
-    #    self.genes.append(self.selectCategoria('frutas', self.nutricao))
-    #    if random.random() <= 0.5:
-    #        self.genes.append(self.selectCategoria('verduras', self.nutricao))
-    #    else:
-    #        self.genes.append(self.selectCategoria('leguminosas', self.nutricao))
-    #    if random.random() <= 0.5:
-    #        self.genes.append(self.selectCategoria('carnes', self.nutricao))
-    #    else:
-    #        self.genes.append(self.selectCategoria('pescados', self.nutricao))
-    #    self.genes.append(self.selectCategoria('cereais', self.nutricao))
-    #    self.genes.append(self.selectCategoria('leites', self.nutricao))
-    #    self.genes.append(self.selectCategoria('frutas', self.nutricao))
-
         
     def inicizalizarGenes(self):
         for c in self.categoria:
             self.genes.append(self.taco.selectCategoria(c, self.nutricao))
     
-    # criação de filtros de comidas fixas no cromosso
+    # Creation of fixed food filters in the chromosome
     def construirCrossomoFixo(self):
         cromo = []
         codigo = []
@@ -106,7 +84,7 @@ class Macro:
         self.restricaoMAX = self.taco.selectConstrainMAX(self.usuario, self.rMAX)
 
 
-# MÉTODOS GET | SET
+# GET | SET Methods
 
     def getPessoaFromDB(self,comida, categoria):
         return self.taco.selectOneFood(comida, categoria)

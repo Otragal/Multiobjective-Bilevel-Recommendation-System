@@ -6,61 +6,59 @@ import numpy as np
 """       
 Class FitnessGurobi()
 
-    Aqui trabalha na insersão de Fitness (Objetivos) dos Indivíduos
+    Here it works on inserting the Fitness (Objectives) of Individuals
     
     setFitnessPovo()
-        recebe o Povo com seus indivíduos;
-        para todos os indivíduos:
-            converte as informações do indivíduo;
-            chama o modelo Gurobi;
-            atualiza o Fitness (Objetivos) do indivíduo;
-        retorna o Povo com objetivos dos indivíduos atualizados;
+        it receives the People with its individuals;
+        for all individuals:
+            converts the individual's information;
+            calls the model Gurobi;
+            updates the individual's Fitness (Goals);
+        returns the People with updated individuals' goals;
 
     setFitness()
-        recebe um indivíduo;
-        converte os dados para leitura aceitável;
-        chama o modelo Gurobi;
-        atualiza o Fitness (Objetivos) do indivíduo;
-        retorna o Indivudo com objetivos atualizados;
+        receives an individual;
+        converts the data to acceptable reading;
+        calls the model Gurobi;
+        updates the individual's Fitness (Goals);
+        returns the Individual with updated goals;
 
     fitnessCustom():
-        método que tem a equação de DESEMPENHO = Energia + Quantidade + Distribuição + Peso     
+        method that has the equation of DESEMPENHO = Energia + Quantidade + Distribuição + Peso     
 """
 
 class FitnessGurobi():
 
-    # Old method
     @staticmethod
     def setFitnessPovo(macro, model, nome_model, povo):
         for individuo in povo.individuos:
             model = GurobiModel.loadModel(nome_model)
-            # Converte para pegar valores, nomes, energia
+            # Converts to get values, names, energy
             val,name,energy,price = FormatConverter.getValuesNamesEnergy(individuo.cromossomo, macro.porcentagem)
-            # Converte para formar os varNuts
+            # Convert to form varNuts
             varNuts = FormatConverter.makeDictNutriValues(name,macro.nutricao,val,macro.porcentagem)
-            # Converter para gerar restrições mins e max 
+            # Convert to generate mins and max constraints
             minCons = FormatConverter.makeDictNutrition(macro.nutRestricao,macro.restricaoMIN)
             maxCons = FormatConverter.makeDictNutrition(macro.nutRestricao, macro.restricaoMAX)
-            # Chama o Gurobi para fazer a Programação Linear
+            # Call Gurobi to do Linear Programming
             model, resultado = GurobiModel.solveCustomModel(model,macro, name, energy, varNuts, maxCons,minCons)
-            #individuo.setFitness(FitnessGurobi.fitness(resultado,energy,price, macro.porcentagem))
+
             individuo.setFitness(FitnessGurobi.fitnessCustom(resultado, macro, energy, price))
         return povo
 
     @staticmethod
     def setFitness(macro, model, nome_model, individuo):
         model = GurobiModel.loadModel(nome_model)
-        # Converte para pegar valores, nomes, energia
+        # Converts to get values, names, energy
         val,name,energy,price = FormatConverter.getValuesNamesEnergy(individuo.cromossomo, macro.porcentagem)    
-        # Converte para formar os varNuts
+        # Convert to form varNuts
         varNuts = FormatConverter.makeDictNutriValues(name,macro.nutricao,val,macro.porcentagem)
-        # Converter para gerar restrições mins e max 
+        # Convert to generate mins and max constraints
         minCons = FormatConverter.makeDictNutrition(macro.nutRestricao, macro.restricaoMIN)
         maxCons = FormatConverter.makeDictNutrition(macro.nutRestricao, macro.restricaoMIN)
-        # Chama o Gurobi para fazer a Programação Linear
+        # Call Gurobi to do Linear Programming
         model, resultado = GurobiModel.solveCustomModel(model, macro, name, energy, varNuts, maxCons,minCons)
-        #model, resultado = GurobiModel.solveModel(model,macro.nutRestricao, name, energy, varNuts, maxCons,minCons)
-        #individuo.setFitness(FitnessGurobi.fitness(resultado,energy,price, macro.tam_categoria, macro.porcentagem))
+
         individuo.setFitness(FitnessGurobi.fitnessCustom(resultado, macro, energy, price))
 
         return individuo

@@ -1,67 +1,68 @@
 # dietprogram
 
-Aqui é a pasta principal do projeto. É onde tudo acontece.
+Here is the main project folder. It's where everything happens.
 
-## Descrição de Cada Arquivo
+## Description of Each File
 
-| Arquivo | Descrição |
+| FILE | Description |
 | --- | --- |
-| app.py | Principal Arquivo para Iniciar o Programa |
-| database.py | Comunicação com Banco de Dados |
-| filtros.py |  Dataclass de Filtros para Usuário |
-| fitnessGurobi.py | Classe que atualiza os Objetivos do Indivíduo |
-| formatConverter.py | Classe que converte os dados do cromossomo do Indivíduo para modelo Gurobi |
-| ga.py | Classe que inicializa o NSAG-II |
-| genetic.py | Classe que contém todas funcionalidades e operações do NSGA-II |
-| gurobyModel.py | Classe da estrutura do modelo Gurobi - Programação Linear Mono Objetivo |
-| individuo.py | Classe da estrutura do Indivíduo do NSGA-II (INCOMPLETO) |
-| interface.py | GUI do Programa - Segundo Arquivo Principal para Iniciar o Programa |
-| macro.py | Classe que armazena as informações do usuário e do banco de dados. PACOTE |
-| povo.py | Classe da estrutura do Povo do NSGA-II |
-| TESTE.py | Arquivo para testar o programa todo |
-| TESTE2.py | Arquivo para gerar gráficos na hora de testar as equações dos objetivos |
+| app.py | Main File to Start the Program |
+| database.py | Communication with Database |
+| filtros.py |  User Filter Dataclass |
+| fitnessGurobi.py | Class that updates the Individual's Objectives |
+| formatConverter.py | Class that converts Individual chromosome data to Gurobi model |
+| ga.py | Class that initializes NSAG-II |
+| genetic.py | Class that contains all NSGA-II functionalities and operations |
+| gurobyModel.py | Gurobi Model Structure Class - Mono Objective Linear Programming |
+| individuo.py | NSGA-II Individual structure class |
+| macro.py | Class that stores user and database information. PACKAGE |
+| povo.py | NSGA-II People Structure Class |
+| results.py | Class for generating graphs of NSGA-II results |
 
-## Fluxo de Informação
+## Flow of information
 
-Inicializa o App (app.py) pelo comando
+Initialize the App (app.py) by command
 
 > python3 app.py
 
-1. App inicia
-    - App recebe os dados do usuário
-    - Se houver filtros, ele chama o Filtros (filtros.py)
-    - App chama o Macro (macro.py) [2]
-    - App chama o GA (ga.py) [4]
-2. Macro quarda os dados do usuário
-    - Chama o Database (database,py) [3]
-    - Armazena os dados do banco de dados
-3. Database recebe os pedidos do Macro
-    - Comunica com o Banco de Dados
-    - Entrega os dados ao macro
-4. GA recebe o macro
-    - Pega o Macro com os dados armazenados
-    - Cria o Primeiro Povo do algoritmo NSGA-II, chamando Povo (povo.py) [6]
-    - Inicializa o NSGA-II, chamando o Genetic (genetic.py) [5]
-    - Recebe os resultados do Genetic
-    - Printa os resultados
-5. Genetic realiza o algoritmo NSGA-II
-    - Utiliza seus métodos para operar sua busca
-    - Cria os filhos da População Atual, chamando seus métodos e outras classes [8] [7] [6] [4] 
-    - Chama FitnessGurobi (fitnessGurobi.py) [8] para calcular os objetivos dos indivíduos 
-    - Realia o algoritmo NSGA-II até chegar o método de parada e retornar os resultados para o GA
-6. Povo é chamado tanto no GA quanto no Genetic
-    - Ele cria os individuos, chamando o Indivíduo (individuo.py) [7]
-    - Dependendo da chamada, ele altera a lista individuos e os indivíduos
-7. Indivíduo é chamado tanto no Genetic quanto no Povo
-    - Responsável em criar o cromossommo do Indivíduo e alterar seu valor fitness (Objetivos)
-8. FitnessGurobi é chamado tanto no Genetic quanto no GA
-    - Ele realiza a operação de inserir os objetivos dos indivíduos do NSGA-II
-    - Chama o FormatConverter (formatConverter.py) [9] para converter os dados do cromossomo
-    - Chama o GurobyModel (gurobyModel.py) [10] para realizar o calculo do Programação Linear Mono-Objetivo
-    - Recebe o objetivo do NSGA-II "Custo", trazido pelo GurobyModel
-    - Calcula o segundo objetivo do NSGA-II "Desempenho"
-9. FormatConverter é chamado pelo FitnessGurobi
-    - Reponsável em converter os dados do cromossomo para o modelo Gurobi poder ler estes dados
-10. GurobyModel é chamado pelo FitnessGurobi
-    - Recebe todos os parametros necesśarios para criar o modelo matemético
-    - Calcula e retorna os resultados
+1. App starts
+   - App receives user data
+   - If there are filters, it calls Filters (filters.py)
+   - App calls Macro (macro.py) [2]
+   - App calls GA (ga.py) [4]
+2. Macro stores user data
+   - Calls Database (database.py) [3]
+   - Stores data in the database
+3. Database receives requests from Macro
+   - Communicates with the database
+   - Delivers data to Macro
+4. GA receives Macro
+   - Retrieves Macro with stored data
+   - Creates the initial population for the NSGA-II algorithm by calling Population (population.py) [6]
+   - Initializes NSGA-II by calling Genetic (genetic.py) [5]
+   - Receives results from Genetic
+   - Prints the results
+5. Genetic performs the NSGA-II algorithm
+   - Utilizes its methods to conduct the search
+   - Creates offspring for the Current Population by calling its methods and other classes [8] [7] [6] [4]
+   - Calls FitnessGurobi (fitnessGurobi.py) [8] to calculate individual objectives
+   - Executes the NSGA-II algorithm until the stopping criterion is met and returns results to GA
+6. Population is called in both GA and Genetic
+   - It creates individuals by calling Individual (individual.py) [7]
+   - Depending on the call, it modifies the individuals' list and the individuals themselves
+7. Individual is called in both Genetic and Population
+   - Responsible for creating an individual's chromosome and updating its fitness value (objectives)
+8. FitnessGurobi is called in both Genetic and GA
+   - It performs the task of inserting the objectives of NSGA-II individuals
+   - Calls FormatConverter (formatConverter.py) [9] to convert chromosome data
+   - Calls GurobyModel (gurobyModel.py) [10] to perform the Linear Mono-Objective Programming calculation
+   - Receives the NSGA-II objective "Cost" brought by GurobyModel
+   - Calculates the second NSGA-II objective "Performance"
+9. FormatConverter is called by FitnessGurobi
+   - Responsible for converting chromosome data so that the Gurobi model can read this data
+10. GurobyModel is called by FitnessGurobi
+    - Receives all necessary parameters to create the mathematical model
+    - Calculates and returns the results
+    - Optionally, presents the data by calling the Results class
+
+![Flow](../sample/process.png)
